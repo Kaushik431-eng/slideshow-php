@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Slideshow</title>
+<style>html,body{margin:0;height:100%;background:#000;color:#fff;font-family:system-ui,sans-serif;overflow:hidden}
+#img{width:100%;height:100%;object-fit:contain;transition:opacity .6s}#cap{position:fixed;bottom:2rem;left:2rem;font-size:2rem;text-shadow:0 0 8px #000}
+#empty{position:fixed;inset:0;display:grid;place-items:center;font-size:2rem}</style></head><body>
+<div id="empty">Waiting for the first photo…</div><img id="img" alt="" hidden><div id="cap"></div>
+<script>
+let all=[],seen=new Set(),pending=[],i=0,ms=5000;
+const img=document.getElementById('img'),cap=document.getElementById('cap');
+async function poll(){try{const d=await (await fetch('api/photos.php')).json();ms=d.slideMs;
+  const fresh=d.photos.filter(p=>!seen.has(p.id));fresh.forEach(p=>seen.add(p.id));
+  pending.push(...fresh);all=d.photos}catch{}}
+function next(){
+  if(!all.length)return;
+  const p=pending.length?pending.shift():all[i++%all.length];
+  img.style.opacity=0;setTimeout(()=>{img.src=p.url;img.hidden=false;cap.textContent=p.name;
+    document.getElementById('empty').hidden=true;img.style.opacity=1},300);
+}
+(async()=>{await poll();next();setInterval(poll,2000);(function loop(){setTimeout(()=>{next();loop()},ms)})()})();
+</script></body></html>
