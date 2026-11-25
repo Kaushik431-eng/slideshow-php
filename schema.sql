@@ -16,3 +16,4 @@ CREATE TABLE IF NOT EXISTS photos (
   FOREIGN KEY (visitor_id) REFERENCES visitors(id) ON DELETE CASCADE,
   INDEX (created_at)
 );
+-- hello word
